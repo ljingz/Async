@@ -66,7 +66,7 @@ class http {
 						throw $error;
 					}
 				}
-				//拆分header头和主题
+				//拆分header头和主体
 				$output = preg_split("/\\r\\n\\r\\n/", $output, 2);
 				$callback(null, $output[0], $output[1]);
 			});

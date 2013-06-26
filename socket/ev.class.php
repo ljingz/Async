@@ -31,14 +31,8 @@ class socket {
 			return;
 		}
 		socket_set_nonblock($socket);
-		//超时设置
-		$timeout_watcher = new EvTimer($this->timeout, 0, function() use ($socket, $callback) {
-			Ev::stop(Ev::BREAK_ALL);
-			socket_close($socket);
-			$callback(new Exception("请求超时"), null);
-		});
 		//监视写事件
-		$write_watcher = new EvIo($socket, Ev::WRITE, function($watcher) use ($socket, $timeout_watcher, $data, $callback){
+		$write_watcher = new EvIo($socket, Ev::WRITE, function($watcher) use ($socket, $data, $callback){
 			//停止write监视
 			$watcher->stop();
 			//发送数据
@@ -50,9 +44,8 @@ class socket {
 				return;
 			}
 			//监视读事件
-			$read_watcher = new EvIo($socket, Ev::READ, function($watcher) use ($socket, $timeout_watcher, $callback){
-				//停止timeout和read监视
-				$timeout_watcher->stop();
+			$read_watcher = new EvIo($socket, Ev::READ, function($watcher) use ($socket, $callback){
+				//停止read监视
 				$watcher->stop();
 				//接收数据
 				$result = "";
